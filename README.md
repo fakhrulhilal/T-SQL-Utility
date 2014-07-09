@@ -43,7 +43,7 @@ Currently, it only supports for table documentation. I hope, I can support for s
 
 ## .NET POCO Generator
 
-There're two POCO generator: for C# (`POCO C# generator.sql`) and VB.NET (`POCO VB.NET generator.sql`). I use it to generate POCO class for my project. You can read my blog posts[^C-Sharp POCO][^VB.NET POCO]
+There're two POCO generator: for C# (`POCO C# generator.sql`) and VB.NET (`POCO VB.NET generator.sql`). I use it to generate POCO class for my project. You can read my blog posts: [T-SQL C# POCO Generator](http://blog.fakhrulhilal.com/post/70766076969/t-sql-c-poco-generator) and [T-SQL VB.NET POCO Generator](http://blog.fakhrulhilal.com/post/72161861229/t-sql-vb-net-poco-generator)
 
 ## T-SQL Database Patch Template
 
@@ -64,7 +64,3 @@ Currently, it supports for:
  
 
 Feel free to fork my repo :-)
-
-
-[^C-Sharp POCO]: [T-SQL C# POCO Generator](http://blog.fakhrulhilal.com/post/70766076969/t-sql-c-poco-generator)
-[^VB.NET POCO]: [T-SQL VB.NET POCO Generator](http://blog.fakhrulhilal.com/post/72161861229/t-sql-vb-net-poco-generator)
