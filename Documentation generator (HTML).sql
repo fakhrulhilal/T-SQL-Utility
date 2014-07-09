@@ -8,7 +8,7 @@ declare
 	@formatColumn varchar(max), --print format for column
 	@docTitle varchar(max), --documentation title
 	@docStartHeading1 int, --starting number for heading level 1
-	@docStartHeading2 int,
+	@docStartHeading2 int, --starting number for heading level 2
 	@docTableOpen varchar(max), --opening table documentation
 	@docTableClose varchar(max), --closing table documentation
 	@heading1 varchar(max), @heading2 varchar(max), @heading3 varchar(max), @heading4 varchar(max), @headingDatabase varchar(max),
@@ -24,7 +24,7 @@ set @docTableOpen = '<table class="MsoNormalTable" border="1" cellspacing="0" ce
 set @docTableClose = '</table>';
 set @docTitle = DB_NAME() + ' Database Documentation';
 set @docStartHeading1 = 1;
-set @docStartHeading2 = 2; --normally, you don't need to change this
+set @docStartHeading2 = 1; --normally, you don't need to change this
 set @docClosing = '
 </div>
 </body>

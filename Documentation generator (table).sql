@@ -1,19 +1,22 @@
-declare @table varchar(max); set @table = 'TableName';
-
+declare
+	@table varchar(max), --table name
+	@formatForeignKey varchar(max); --foreign key format
+set @table = 'TableName';
+set @formatForeignKey = 'Foreign key to !TABLE_NAME! field !COLUMN_NAME!. ';
 --data preparation
 if object_id('TempDB..#column') is not null
 	drop table #column;
 select 
 	object_definition(c.default_object_id) DefaultValue, 
 	case
-		when t.name in ('bit') then 2
+		when t.name in ('bit', 'smallint', 'int', 'tinyint', 'bigint') then 2
 		when t.name in ('datetime', 'date', 'datetime2') then 1
 		when t.name in ('varchar', 'char', 'text') then 1
 		when t.name in ('nvarchar', 'nchar') then 2
 		else 0
 	end LeftSubstractor,
 	case
-		when t.name in ('bit') then 2
+		when t.name in ('bit', 'smallint', 'int', 'tinyint', 'bigint') then 2
 		when t.name in ('datetime', 'date', 'datetime2') then 1
 		when t.name in ('varchar', 'char', 'nvarchar', 'nchar', 'text') then 1
 		else 0
@@ -51,7 +54,7 @@ select
 	end Nullable,
 	case when pk.ColumnId is not null then 'Primary Key. ' else '' end +
 	case when sc.is_identity = 1 then 'Auto increment. ' else '' end +
-	case when fk.ColumnTargetId is not null then 'Foreign key ke Table ' + fk.TableTargetName + ' field ' + fk.ColumnTargetName + '. ' else '' end + 
+	case when fk.ColumnTargetId is not null then replace(replace(@formatForeignKey, '!TABLE_NAME!', fk.TableTargetName), '!COLUMN_NAME!', fk.ColumnTargetName) else '' end + 
 	case when cc.Formula is not null then 'Computed -> ' + substring(cc.Formula, 2, len(cc.Formula) - 2) + '. ' else '' end +
 	case when sep.value is not null then cast(sep.value as varchar(max)) else '' end + ' ' +
 	case when sc.DefaultValue is not null then 'Default: ' + substring(sc.DefaultValue, sc.LeftSubstractor + 1, len(sc.DefaultValue) - sc.LeftSubstractor - sc.RightSubstractor) + '. ' else '' end
@@ -74,9 +77,9 @@ left join (
 		sc1.column_id ColumnSourceId,
 		sc1.name ColumnSourceName,
 		t2.object_id TableTargetId,
-		t2.name TableTargetName,
+		convert(varchar(100), t2.name) collate DATABASE_DEFAULT TableTargetName,
 		sc2.column_id ColumnTargetId,
-		sc2.name ColumnTargetName
+		convert(varchar(100), sc2.name) collate DATABASE_DEFAULT ColumnTargetName
 	from sys.foreign_keys fk
 	left join #table t1 on fk.parent_object_id = t1.object_id
 	left join #table t2 on fk.referenced_object_id = t2.object_id

@@ -1,60 +1,3 @@
-if TYPE_ID('TDocumentation') is null
-	-- user defined table/scalar type
-	create type TDocumentation as table
-	(
-		TableName varchar(50),
-		ColumnName varchar(50), --gunakan '#TABLE#' untuk description table
-		[Description] varchar(1000) null
-	)
-go
-if exists (select 1 
-	from sys.objects 
-	where object_id = OBJECT_ID(N'SaveDocumentation') and type in (N'P', N'PC'))
-	drop procedure SaveDocumentation;
-go
-create procedure SaveDocumentation(@docs TDocumentation readonly) as
-begin
-	declare @schema varchar(max), @table varchar(max), @column varchar(max), @description varchar(1000);
-	declare cDocs cursor for select TableName, ColumnName, [Description] from @docs;
-	set @schema = SCHEMA_NAME();
-	open cDocs;
-	fetch cDocs into @table, @column, @description;
-	while @@FETCH_STATUS = 0
-	begin
-		if (@table = '#DATABASE#')
-		begin
-			if exists (select 1 
-				from sys.extended_properties sep
-				where sep.name = 'MS_Description' and sep.major_id = 0 and sep.minor_id = 0 and sep.class = 0)
-				exec sp_dropextendedproperty @name = N'MS_Description', @level0type = N'Schema', @level0name = @schema;
-			exec sp_addextendedproperty @name = N'MS_Description', @value = @description, @level0type = N'Schema', @level0name = @schema;
-		end
-		else if (@column = '#TABLE#')
-		begin
-			if exists (select 1 
-				from sys.extended_properties sep
-				join sys.tables st on sep.major_id = st.object_id
-				join sys.columns sc on st.object_id = sc.object_id and sep.minor_id = 0
-				where sep.name = 'MS_Description' and st.name = @table)
-				exec sp_dropextendedproperty @name = N'MS_Description', @level0type = N'Schema', @level0name = @schema, @level1type = N'Table',  @level1name = @table;
-			exec sp_addextendedproperty @name = N'MS_Description', @value = @description, @level0type = N'Schema', @level0name = @schema, @level1type = N'Table',  @level1name = @table;
-		end
-		else
-		begin
-			if exists (select 1 
-				from sys.extended_properties sep
-				join sys.tables st on sep.major_id = st.object_id
-				join sys.columns sc on st.object_id = sc.object_id and sep.minor_id = sc.column_id
-				where sep.name = 'MS_Description' and sc.name = @column and st.name = @table)
-				exec sp_dropextendedproperty @name = N'MS_Description', @level0type = N'Schema', @level0name = @schema, @level1type = N'Table',  @level1name = @table, @level2type = N'Column', @level2name = @column;
-			exec sp_addextendedproperty @name = N'MS_Description', @value = @description, @level0type = N'Schema', @level0name = @schema, @level1type = N'Table',  @level1name = @table, @level2type = N'Column', @level2name = @column;
-		end
-		fetch cDocs into @table, @column, @description;
-	end
-	close cDocs;
-	deallocate cDocs;
-end
-go
 /*==============================================================*/
 /* Table: Mst_Table                                             */
 /*==============================================================*/
@@ -91,17 +34,6 @@ alter table Mst_Table with nocheck
 go
 alter table Mst_Table nocheck constraint FK_Table_Target
 go
-declare @documentation TDocumentation;
-insert into @documentation(TableName, ColumnName, [Description]) values
-('Product', '#TABLE#', 'Digunakan untuk menyimpan data table.'),
-('Product', 'Code', 'Kode data.'),
-('Product', 'Name', 'Nama data.'),
-('Product', 'IsActive', 'Menyatakan status data apakah aktif (1) atau tidak (0).'),
-('Product', 'CreatedTime', 'Waktu terakhir pertama kali data ini dibuat. Sekali diisi tidak boleh diubah.'),
-('Product', 'CreatedBy', 'Siapa yang pertama kali membuat data ini. Sekali diisi tidak boleh diubah.'),
-('Product', 'ModifiedTime', 'Waktu terakhir kali data diubah.'),
-('Product', 'ModifiedBy', 'Siapa yang terakhir kali mengubah data.');
-exec SaveDocumentation @documentation;
 /*==============================================================*/
 /* Table: Mst_Table                                             */
 /*==============================================================*/
@@ -126,19 +58,6 @@ if not exists (select 1
 	alter table Mst_Table
 		add ColumnName int null;
 go
-if not exists (select 1 
-	from sys.extended_properties sep
-	join sys.columns sc on sep.major_id = object_id('Mst_Table') and sep.minor_id = sc.column_id
-	where sc.name = 'ColumnName')
-	begin
-		declare @schema varchar(max); set @schema = SCHEMA_NAME();
-		exec sp_addextendedproperty 
-			@name = N'MS_Description', @value = 'ColumnDescription', 
-			@level0type = N'Schema', @level0name = @schema, 
-			@level1type = N'Table',  @level1name = 'Mst_Table', 
-			@level2type = N'Column', @level2name = 'ColumnName';
-	end
-go
 if exists (select 1 
 	from sys.columns 
 	where Name = N'OldColumnName' and Object_ID = Object_ID(N'Mst_Table'))
@@ -149,12 +68,6 @@ if exists (select 1
 	where Name = N'ColumnName' and Object_ID = Object_ID(N'Mst_Table'))
 	alter table Mst_Table 
 		alter column ColumnName decimal(20,5) null;
-	declare @schema varchar(max); set @schema = SCHEMA_NAME();
-	exec sp_updateextendedproperty 
-		@name = N'MS_Description', @value = 'ColumnDescription', 
-		@level0type = N'Schema', @level0name = @schema, 
-		@level1type = N'Table',  @level1name = 'Mst_Table', 
-		@level2type = N'Column', @level2name = 'ColumnName';
 if exists (select 1 
 	from sys.columns 
 	where Name = N'ColumnName' and Object_ID = Object_ID(N'Mst_Table'))
@@ -332,7 +245,7 @@ begin
 	declare 
 		@oldCode nvarchar(max), @oldName nvarchar(max), @oldIsDeleted bit,
 		@newCode nvarchar(max), @newName nvarchar(max), @newIsDeleted bit;
-	set @table = 'Mst_DistributionChannel';
+	set @table = 'Table';
 	-- event: update
 	if exists(select 1 from inserted) and exists(select 1 from deleted)
 	begin
@@ -367,7 +280,7 @@ begin
 			set @action = 'delete';
 			set @changes = '';
 		end
-		set @detail = @actor + ' ' + @action + ' ' + ' Distribution Channel (PK = ' + CONVERT(nvarchar, @primaryKey) + ') ' + @changes;
+		set @detail = @actor + ' ' + @action + ' ' + ' Table (PK = ' + CONVERT(nvarchar, @primaryKey) + ') ' + @changes;
 	end
 	-- event: insert
 	else if exists (select 1 from inserted)
@@ -380,7 +293,7 @@ begin
 			@newCode = i.Code,
 			@newName = i.Name
 		from inserted i;
-		set @detail = @actor + ' ' + @action + ' ' + ' new Distribution Channel (PK = ' + CONVERT(nvarchar, @primaryKey) + '): Code = ' + @newCode + '; Name = ' + @newName;
+		set @detail = @actor + ' ' + @action + ' ' + ' new Table (PK = ' + CONVERT(nvarchar, @primaryKey) + '): Code = ' + @newCode + '; Name = ' + @newName;
 	end
 	-- event: delete
 	else if exists (select 1 from deleted)
@@ -393,12 +306,12 @@ begin
 			@oldCode = d.Code,
 			@oldName = d.Name
 		from deleted d;
-		set @detail = @actor + ' ' + @action + ' ' + ' Distribution Channel (PK = ' + CONVERT(nvarchar, @primaryKey) + '): Code = ' + @oldCode + '; Name = ' + @oldName;
+		set @detail = @actor + ' ' + @action + ' ' + ' Table (PK = ' + CONVERT(nvarchar, @primaryKey) + '): Code = ' + @oldCode + '; Name = ' + @oldName;
 	end
 	else
 	begin
 		set @action = 'unknown';
-		set @detail = 'Unknown action to Distribution Channel';
+		set @detail = 'Unknown action to Table';
 	end 
 		
 	--insert to audit table
@@ -407,5 +320,3 @@ begin
 end
 go
 
-drop procedure SaveDocumentation;
-drop type TDocumentation;
