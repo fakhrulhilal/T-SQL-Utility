@@ -46,14 +46,14 @@ select
 	t.name TypeName,
 	object_definition(c.default_object_id) DefaultValue, 
 	case
-		when t.name in ('bit', 'smallint', 'int', 'tinyint', 'bigint') then 2
+		when t.name in ('bit', 'smallint', 'int', 'tinyint', 'bigint', 'numeric', 'float', 'decimal') then 2
 		when t.name in ('datetime', 'date', 'datetime2') then 1
 		when t.name in ('varchar', 'char', 'text') then 2
 		when t.name in ('nvarchar', 'nchar') then 3
 		else 0
 	end LeftSubstractor,
 	case
-		when t.name in ('bit', 'smallint', 'int', 'tinyint', 'bigint') then 2
+		when t.name in ('bit', 'smallint', 'int', 'tinyint', 'bigint', 'numeric', 'float', 'decimal') then 2
 		when t.name in ('datetime', 'date', 'datetime2') then 1
 		when t.name in ('varchar', 'char', 'nvarchar', 'nchar', 'text') then 2
 		else 0
