@@ -271,15 +271,17 @@ if object_id('TempDB..#column') is not null
 select 
 	object_definition(c.default_object_id) DefaultValue, 
 	case
-		when t.name in ('bit', 'int', 'tinyint', 'smallint', 'bigint') then 2
-		when t.name in ('datetime', 'date', 'datetime2') then 1
+		when t.name in ('bit', 'int', 'tinyint', 'smallint', 'bigint', 'numeric') then 2
+		when t.name in ('uniqueidentifier') then 1
+		when t.name in ('datetime', 'date', 'datetime2', 'smalldatetime') then 1
 		when t.name in ('varchar', 'char', 'text') then 1
 		when t.name in ('nvarchar', 'nchar') then 2
 		else 0
 	end LeftSubstractor,
 	case
-		when t.name in ('bit', 'int', 'tinyint', 'smallint', 'bigint') then 2
-		when t.name in ('datetime', 'date', 'datetime2') then 1
+		when t.name in ('bit', 'int', 'tinyint', 'smallint', 'bigint', 'numeric') then 2
+		when t.name in ('uniqueidentifier') then 1
+		when t.name in ('datetime', 'date', 'datetime2', 'smalldatetime') then 1
 		when t.name in ('varchar', 'char', 'nvarchar', 'nchar', 'text') then 1
 		else 0
 	end RightSubstractor,
