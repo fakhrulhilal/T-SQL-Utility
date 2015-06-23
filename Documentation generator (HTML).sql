@@ -340,7 +340,7 @@ print @heading2;
 print @heading3;
 print @heading4;
 print @styles;
-print replace(replace(replace(@headingDatabase, '!DOC_START_HEADING1!', @docStartHeading1), '!DOC_START_HEADING2!', @docStartHeading2), '!DESCRIPTION!', @description);
+print replace(replace(replace(@headingDatabase, '!DOC_START_HEADING1!', @docStartHeading1), '!DOC_START_HEADING2!', @docStartHeading2), '!DESCRIPTION!', isnull(@description, ''));
 set @tableIterator = 1;
 while exists (select 1 from #table where RowNumber = @tableIterator)
 begin
@@ -355,7 +355,7 @@ begin
 	from #extended_properties ep
 	where ep.major_id = @tableId and ep.minor_id = 0 and ep.name = 'MS_Description';
 	--print table information
-	print replace(replace(replace(replace(replace(replace(@formatTableHead, '!TABLE_ID!', @tableId), '!DOC_START_HEADING1!', @docStartHeading1), '!DOC_START_HEADING2!', @docStartHeading2), '!TABLE_NO!', @tableNo), '!TABLE_NAME!', @tableName), '!DESCRIPTION!', @tableDescription);	set @tableIterator = @tableIterator + 1;
+	print replace(replace(replace(replace(replace(replace(@formatTableHead, '!TABLE_ID!', @tableId), '!DOC_START_HEADING1!', @docStartHeading1), '!DOC_START_HEADING2!', @docStartHeading2), '!TABLE_NO!', @tableNo), '!TABLE_NAME!', @tableName), '!DESCRIPTION!', isnull(@tableDescription, ''));	set @tableIterator = @tableIterator + 1;
 	print @docTableOpen;
 	set @columnIterator = 1;
 	while exists(select 1 from #column sc where sc.object_id = @tableId and sc.column_id = @columnIterator)
