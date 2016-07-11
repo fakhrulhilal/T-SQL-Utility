@@ -3,10 +3,14 @@ declare
 	@table varchar(max), --table name
 	@enableAnnotation bit, --show data annotation?
 	@enableColumnAnnotation bit, --show data 'Column' annotation? ignored when @enableAnnotation = 0
-	@enableDocumentation bit; --show table documentation?
+	@enableDocumentation bit, --show table documentation?
+	@tableAnnotation varchar(50) = 'Alias', -- table annotation if the entity name is different with table name, default: Table
+	@columnAnnotation varchar(50) = 'Alias', -- column annotation if the property name is different with column name, default: Column
+	@primaryKeyAnnotation varchar(50) = 'PrimaryKey', -- primary key annotation, default: Key
+	@identityAnnotation varchar(50) = 'AutoIncrement' -- annotation for auto generated number, default: DatabaseGenerated(DatabaseGeneratedOption.Identity)
 set @table = 'Table';
 set @enableAnnotation = 1;
-set @enableColumnAnnotation = 0;
+set @enableColumnAnnotation = 1;
 set @enableDocumentation = 1;
 /* ----- END OF CONFIGURATION ----- */
 
@@ -101,7 +105,7 @@ begin
 	print '/// </Summary>';
 end
 if (@enableAnnotation = 1)
-	print '[Table("' + @table + '")]';
+	print '[' + @tableAnnotation + '("' + @table + '")]';
 --determine wether table has default value or not
 select @totalDefaultValue = count('')
 from #column c
@@ -144,16 +148,16 @@ begin
 	--determine wether column is primary key or not
 	if exists (select 1 from @primaryKeys where ColumnName = @column)
 	begin
-		set @attribute = @attribute + '[Key]' + @linebreak;
+		set @attribute = @attribute + '[' + @primaryKeyAnnotation + ']' + @linebreak;
 		set @isPK = 1;
 	end
 	if (@isPK = 1 and @totalPK > 1)
 	begin
-		set @attribute = @attribute + '[Column("' + @column + '", Order = ' + cast(@indexPK as varchar) + ')]' + @linebreak;
+		set @attribute = @attribute + '[' + @columnAnnotation + '("' + @column + '", Order = ' + cast(@indexPK as varchar) + ')]' + @linebreak;
 		set @indexPK = @indexPK + 1;
 	end
 	else if (@enableColumnAnnotation = 1)
-		set @attribute = @attribute + '[Column("' + @column + '")]' + @linebreak;
+		set @attribute = @attribute + '[' + @columnAnnotation + '("' + @column + '")]' + @linebreak;
 	--determine wether column is identity or not
 	select top 1
 		@identitySeed = Seed,
@@ -163,7 +167,7 @@ begin
 		ColumnName = @column;
 	if (@identityIncrement is not null and @identitySeed is not null)
 	begin
-		set @attribute = @attribute + '[DatabaseGenerated(DatabaseGeneratedOption.Identity)]' + @linebreak;
+		set @attribute = @attribute + '[' + @identityAnnotation + ']' + @linebreak;
 	end
 	if (@type in ('varchar', 'nvarchar', 'char', 'nchar', 'text', 'ntext'))
 	begin
@@ -201,6 +205,8 @@ begin
 		end
 		else if (@type = 'binary')
 			set @pocoType = 'byte[]';
+		else if (@type = 'uniqueidentifier')
+			set @pocoType = 'System.Guid';
 		else
 			set @pocoType = @type;
 		if (@isNullable = 1 and @type not in ('binary'))
@@ -208,11 +214,11 @@ begin
 		if (@defaultValue is not null)
 		begin
 			if (@type in ('bigint', 'int', 'tinyint', 'smallint', 'decimal', 'money', 'smallmoney', 'numeric'))
-				set @defaultValues = @defaultValues + @linebreak3 + @column + ' = ' + @defaultValue;
+				set @defaultValues = @defaultValues + @linebreak3 + @column + ' = ' + @defaultValue + ';';
 			else if (@type in ('date', 'time', 'datetime', 'datetime2'))
 			begin
 				if (@defaultValue = 'getdate()')
-					set @defaultValues = @defaultValues + @linebreak3 + @column + ' = ' + (case @type when 'date' then 'System.DateTime.Dow.Date;' else 'System.DateTime.Now;' end);
+					set @defaultValues = @defaultValues + @linebreak3 + @column + ' = ' + (case @type when 'date' then 'System.DateTime.Dow.Date;' else 'System.DateTime.Now;' end) + ';';
 			end
 			else if (@type = 'bit')
 				set @defaultValues = @defaultValues + @linebreak3 + @column + ' = ' + (case @defaultValue when '1' then 'true' else 'false' end) + ';';
