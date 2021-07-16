@@ -7,6 +7,7 @@ declare
 	@tableAnnotation varchar(50) = 'Alias', -- table annotation if the entity name is different with table name, default: Table
 	@columnAnnotation varchar(50) = 'Alias', -- column annotation if the property name is different with column name, default: Column
 	@primaryKeyAnnotation varchar(50) = 'PrimaryKey', -- primary key annotation, default: Key
+	@mandatoryAnnotation varchar(10) = 'NotNull', -- mandatory column annotation
 	@identityAnnotation varchar(50) = 'AutoIncrement', -- annotation for auto generated number, default: DatabaseGenerated(DatabaseGeneratedOption.Identity)
 	@useC6 bit = 1 -- Use C# v6.0 style?
 set @table = 'Table';
@@ -181,7 +182,7 @@ begin
 	begin
 		set @pocoType = 'string';
 		if (@isNullable = 0)
-			set @attribute = @attribute + '[Required]' + @linebreak;
+			set @attribute = @attribute + '[' + @mandatoryAnnotation + ']' + @linebreak;
 		if (@length is not null and @length > 0)
 			set @attribute = @attribute + '[MaxLength(' + cast(@length as varchar) + ')]' + @linebreak;
 		if (@type in ('ntext', 'text'))

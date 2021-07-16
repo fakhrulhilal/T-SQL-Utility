@@ -11,15 +11,15 @@ declare
 	@docStartHeading2 int, --starting number for heading level 2
 	@docTableOpen varchar(max), --opening table documentation
 	@docTableClose varchar(max), --closing table documentation
-	@heading1 varchar(max), @heading2 varchar(max), @heading3 varchar(max), @heading4 varchar(max), @headingDatabase varchar(max),
+	@heading1 varchar(max), @heading2 varchar(max), @heading3 varchar(max), @heading4 varchar(max), @heading5 varchar(max), @headingDatabase varchar(max),
 	@docClosing varchar(max), @styles varchar(max);
-set @docTableOpen = '<table class="MsoNormalTable" border="1" cellspacing="0" cellpadding="0" width="601" class="doc-table">
+set @docTableOpen = '<table class="MsoTable15Grid4" border="1" cellspacing="0" cellpadding="0" class="doc-table">
 	<tr style="mso-yfti-irow:0;mso-yfti-firstrow:yes">
-		<td width="29" class="doc-table-row header" style="width:21.75pt;background:black;color:white;font-weight:bold;vertical-align:middle;"><p class="MsoNormal" align="center" style="text-align:center;">No</p></td>
-		<td width="143" class="doc-table-row header next" style="width:107.5pt;background:black;color:white;font-weight:bold;vertical-align:middle;"><p class="MsoNormal" style="text-align:center;">Field</p></td>
-		<td width="104" class="doc-table-row header next" style="width:77.8pt;background:black;color:white;font-weight:bold;vertical-align:middle;"><p class="MsoNormal" style="text-align:center;">Data Type</p></td>
-		<td width="85" class="doc-table-row header next" style="width:63.7pt;background:black;color:white;font-weight:bold;vertical-align:middle;"><p class="MsoNormal" style="text-align:center;">Nullable</p></td>
-		<td width="240" class="doc-table-row header next" style="width:180.0pt;background:black;color:white;font-weight:bold;vertical-align:middle;"><p class="MsoNormal" style="text-align:center;">Description</p></td>
+		<td class="doc-table-row header" style="width:21.75pt;background:black;color:white;font-weight:bold;vertical-align:middle;"><p class="MsoNormal" align="center" style="text-align:center;">No</p></td>
+		<td class="doc-table-row header next" style="width:107.5pt;background:black;color:white;font-weight:bold;vertical-align:middle;"><p class="MsoNormal" style="text-align:center;">Field</p></td>
+		<td class="doc-table-row header next" style="width:77.8pt;background:black;color:white;font-weight:bold;vertical-align:middle;"><p class="MsoNormal" style="text-align:center;">Data Type</p></td>
+		<td class="doc-table-row header next" style="width:38pt;background:black;color:white;font-weight:bold;vertical-align:middle;"><p class="MsoNormal" style="text-align:center;">Nullable</p></td>
+		<td class="doc-table-row header next" style="background:black;color:white;font-weight:bold;vertical-align:middle;"><p class="MsoNormal" style="text-align:center;">Description</p></td>
 	</tr>';
 set @docTableClose = '</table>';
 set @docTitle = DB_NAME() + ' Database Documentation';
@@ -32,11 +32,11 @@ set @docClosing = '
 ';
 set @formatTableHead = '
 <h3>
-	<a name="Table_!TABLE_ID!">
-		<span class="text-title">!DOC_START_HEADING1!.!DOC_START_HEADING2!.!TABLE_NO!<span style="font-size:7.0pt">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></span>
-		<span class="text-title">Table </span>
-	</a>
-	<span class="text-title">!TABLE_NAME!</span>
+	<a name="Table_!TABLE_NAME!"></a>
+    <![if !supportLists]>
+    	<span class="text-title">!DOC_START_HEADING1!.!DOC_START_HEADING2!.!TABLE_NO!<span style="font-size:7.0pt">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></span>
+    <![endif]>
+	<span class="text-title">Table !TABLE_NAME!</span>
 </h3>
 <p class=MsoNormal>!DESCRIPTION!</p>
 ';
@@ -48,20 +48,20 @@ set @formatColumn =
 		<td class="doc-table-row next data"" style="vertical-align:top;"><p class="MsoNormal">!COLUMN_ISNULLABLE!</p></td>
 		<td class="doc-table-row next data"" style="vertical-align:top;"><p class="MsoNormal">!COLUMN_DESCRIPTION!</p></td>
 	</tr>';
-set @formatForeignKey = 'Foreign key to <a href="#Table_!TABLE_ID!" title="Click to see detail" style="color:black;text-decoration:none;font-size:10pt;font-family:''Arial Narrow'',''sans-serif''">!TABLE_NAME!</a> field !COLUMN_NAME!. ';
+set @formatForeignKey = 'Foreign key to <a href="#Table_!TABLE_NAME!" title="Click to see detail" style="color:black;text-decoration:none;font-size:10pt;font-family:''Arial Narrow'',''sans-serif''">!TABLE_NAME!</a> field !COLUMN_NAME!. ';
 set @styles = '
 <style type="text/css">
 .text-title{font-variant:normal !important;/*text-transform:uppercase;*/}
 .list-title{mso-fareast-font-family:"Arial Narrow";mso-bidi-font-family: "Arial Narrow";font-variant:normal !important;text-transform:uppercase;}
 .list-title-number{mso-list:Ignore}
 .list-title-space{font:7.0pt "Times New Roman"}
-.doc-table{width:450.75pt;margin-left:5.4pt;border-collapse:collapse;border:none; mso-border-alt:solid windowtext .5pt;mso-yfti-tbllook:1184;mso-padding-alt: 0cm 5.4pt 0cm 5.4pt;mso-border-insideh:.5pt solid windowtext;mso-border-insidev: .5pt solid windowtext}
+.doc-table{width:697;margin-left:0pt;border-collapse:collapse;border:none; mso-border-alt:solid windowtext .5pt;mso-yfti-tbllook:1184;mso-padding-alt: 0cm 5.4pt 0cm 5.4pt;mso-border-insideh:.5pt solid windowtext;mso-border-insidev: .5pt solid windowtext}
 .doc-table-row{border:solid windowtext 1.0pt; mso-border-alt:solid windowtext .5pt;padding:0cm 5.4pt 0cm 5.4pt;}
 .doc-table-row:first-child{border-top:none;}
-.doc-table-row.header{background:black;mso-background-alt:black;}
+.doc-table-row.header{background:black;mso-background-alt:black;mso-yfti-firstrow:yes;mso-yfti-lastfirstrow:yes;mso-background-themecolor:text1}
 .doc-table-row.data{border-top:none;border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt; mso-border-top-alt:solid windowtext .5pt;}
 .doc-table-row.next{border-left:none;mso-border-left-alt:solid windowtext .5pt;}
-.doc-table-row.header p {text-align:center;font-weight:bold;mso-bidi-font-weight:normal;color:white;}
+.doc-table-row.header p {text-align:center;font-weight:bold;mso-bidi-font-weight:normal;background:black;color:white;color:white;vertical-align:middle;mso-themecolor:background1;}
 .doc-table-row p.number{text-align:right;}
 table.MsoNormalTable td {vertical-align:top;}
 table.MsoNormalTable a{color:black;text-decoration:none;font-size:10pt;}
@@ -229,26 +229,37 @@ span.PetaDokumenKAR{mso-style-name:"Peta Dokumen KAR";mso-style-link:"Peta Dokum
 @page WordSection1{size:595.45pt 841.7pt;margin:77.05pt 72pt 64.1pt}
 div.WordSection1{page:WordSection1}
 ol{margin-bottom:0}
-ul{margin-bottom:0}
+ul{margin-bottom:0}';
+set @heading5 = '
+table.MsoTable15Grid4{mso-style-name:"Grid Table 4";mso-tstyle-rowband-size:1;mso-tstyle-colband-size:1;mso-style-priority:49;mso-style-unhide:no;border:solid #666 1pt;mso-border-themecolor:text1;mso-border-themetint:153;mso-border-alt:solid #666 .5pt;mso-border-themecolor:text1;mso-border-themetint:153;mso-padding-alt:0 5.4pt 0 5.4pt;mso-border-insideh:.5pt solid #666;mso-border-insideh-themecolor:text1;mso-border-insideh-themetint:153;mso-border-insidev:.5pt solid #666;mso-border-insidev-themecolor:text1;mso-border-insidev-themetint:153;mso-para-margin:0;mso-para-margin-bottom:.0001pt;mso-pagination:widow-orphan;font-size:10pt;font-family:"Times New Roman",serif}
+table.MsoTable15Grid4FirstRow{mso-style-name:"Grid Table 4";mso-table-condition:first-row;mso-style-priority:49;mso-style-unhide:no;mso-tstyle-shading:#000;mso-tstyle-shading-themecolor:text1;mso-tstyle-border-top:.5pt solid #000;mso-tstyle-border-top-themecolor:text1;mso-tstyle-border-left:.5pt solid #000;mso-tstyle-border-left-themecolor:text1;mso-tstyle-border-bottom:.5pt solid #000;mso-tstyle-border-bottom-themecolor:text1;mso-tstyle-border-right:.5pt solid #000;mso-tstyle-border-right-themecolor:text1;mso-tstyle-border-insideh:cell-none;mso-tstyle-border-insidev:cell-none;color:#fff;mso-themecolor:background1;mso-ansi-font-weight:bold;mso-bidi-font-weight:bold}
+table.MsoTable15Grid4LastRow{mso-style-name:"Grid Table 4";mso-table-condition:last-row;mso-style-priority:49;mso-style-unhide:no;mso-tstyle-border-top:1.5pt double #000;mso-tstyle-border-top-themecolor:text1;mso-ansi-font-weight:bold;mso-bidi-font-weight:bold}
+table.MsoTable15Grid4FirstCol{mso-style-name:"Grid Table 4";mso-table-condition:first-column;mso-style-priority:49;mso-style-unhide:no;mso-ansi-font-weight:bold;mso-bidi-font-weight:bold}
+table.MsoTable15Grid4LastCol{mso-style-name:"Grid Table 4";mso-table-condition:last-column;mso-style-priority:49;mso-style-unhide:no;mso-ansi-font-weight:bold;mso-bidi-font-weight:bold}
+table.MsoTable15Grid4OddColumn{mso-style-name:"Grid Table 4";mso-table-condition:odd-column;mso-style-priority:49;mso-style-unhide:no;mso-tstyle-shading:#ccc;mso-tstyle-shading-themecolor:text1;mso-tstyle-shading-themetint:51}
+table.MsoTable15Grid4OddRow{mso-style-name:"Grid Table 4";mso-table-condition:odd-row;mso-style-priority:49;mso-style-unhide:no;mso-tstyle-shading:#ccc;mso-tstyle-shading-themecolor:text1;mso-tstyle-shading-themetint:51}
 /-->
 </style>
-<body link=blue vlink=purple>
+<body lang=EN-US link=blue vlink=purple>
 
-<div class=WordSection1>
-';
+<div class=WordSection1>';
 set @headingDatabase = '
-<h1 style="mso-list:l17 level1 lfo7">
+<h1 style="mso-list:l5 level1 lfo7">
+	<![if !supportLists]>
 	<span class="list-title">
 		<span class="list-title">!DOC_START_HEADING1!<span class="list-title-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></span>
 	</span>
+	<![endif]>
 	<span class="text-title">Database</span>
 </h1>
 <p class=MsoNormal>!DESCRIPTION!</p>
 
-<h2 style="mso-list:l17 level2 lfo7">
+<h2 style="mso-list:l5 level2 lfo7">
+	<![if !supportLists]>
 	<span class="list-title">
 		<span class="list-title-number">!DOC_START_HEADING1!.!DOC_START_HEADING2!<span class="list-title-space">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></span>
 	</span>
+	<![endif]>
 	<span class="text-title">Table Definition</span>
 </h2>
 ';
@@ -339,6 +350,7 @@ print replace(@heading1, '!DOC_TITLE!', @docTitle);
 print @heading2;
 print @heading3;
 print @heading4;
+print @heading5;
 print @styles;
 print replace(replace(replace(@headingDatabase, '!DOC_START_HEADING1!', @docStartHeading1), '!DOC_START_HEADING2!', @docStartHeading2), '!DESCRIPTION!', isnull(@description, ''));
 set @tableIterator = 1;
