@@ -74,6 +74,13 @@ if exists (select 1
 	alter table Mst_Table 
 		drop column ColumnName;
 /*==============================================================*/
+/* View: ViewName                                               */
+/*==============================================================*/
+if not exists(select 1
+	from sys.views 
+	where object_id = OBJECT_ID(N'ViewName'))
+	drop view ViewName;
+/*==============================================================*/
 /* Type: TUserDefinedType                                       */
 /*==============================================================*/
 if TYPE_ID('TUserDefinedType') is not null
@@ -94,7 +101,7 @@ go
 -- Implementation of......
 /*==============================================================*/
 if exists (select 1 
-	from sys.objects 
+	from sys.procedures 
 	where 
 		object_id = OBJECT_ID(N'SP_Mod_ModuleName') and 
 		type in (N'P', N'PC'))
